@@ -1,9 +1,6 @@
 package com.invoice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,6 +28,9 @@ public class Invoice {
     private String filePath;
 
     private String status;
+
+    @Column (unique=true)
+    private String fileHash;
 
     private LocalDateTime createdAt;
 }

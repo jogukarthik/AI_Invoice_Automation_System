@@ -3,6 +3,7 @@ package com.invoice.services;
 import com.invoice.dto.InvoiceResponse;
 import com.invoice.entity.Invoice;
 import com.invoice.repositories.InvoiceRepository;
+import com.invoice.util.HashUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ import java.util.UUID;
 public class InvoiceService
          {
     private final InvoiceRepository repository;
-
+    private final HashUtil hashUtil;
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -49,11 +50,12 @@ public class InvoiceService
                     file.getInputStream(),
                     path
             );
-
+            String fileHash=hashUtil.generateSHA256(file);
             Invoice invoice =
                     Invoice.builder()
                             .fileName(file.getOriginalFilename())
                             .filePath(path.toString())
+                            .fileHash(fileHash)
                             .sourceEmail(sourceEmail)
                             .status("RECEIVED")
                             .createdAt(LocalDateTime.now())

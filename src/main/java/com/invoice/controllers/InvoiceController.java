@@ -1,5 +1,6 @@
 package com.invoice.controllers;
 import com.invoice.dto.InvoiceResponse;
+import com.invoice.exception.DuplicateInvoiceException;
 import com.invoice.services.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class InvoiceController {
             MultipartFile file,
 
             @RequestParam("sourceEmail")
-            String sourceEmail) {
+            String sourceEmail) throws DuplicateInvoiceException {
 
         InvoiceResponse response =
                 invoiceService

@@ -1,0 +1,1 @@
+ALTER TABLE invoice ADD COLUMN file_hash VARCHAR(64) UNIQUE;

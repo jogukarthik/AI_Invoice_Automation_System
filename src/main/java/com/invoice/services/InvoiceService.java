@@ -2,6 +2,7 @@ package com.invoice.services;
 
 import com.invoice.dto.InvoiceResponse;
 import com.invoice.entity.Invoice;
+import com.invoice.exception.DuplicateInvoiceException;
 import com.invoice.repositories.InvoiceRepository;
 import com.invoice.util.HashUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,16 @@ public class InvoiceService
 
     public InvoiceResponse uploadInvoice(
             MultipartFile file,
-            String sourceEmail) {
+            String sourceEmail) throws DuplicateInvoiceException {
 
         try {
+
+            String fileHash = hashUtil.generateSHA256(file);
+
+            if (repository.existsByFileHash(fileHash)) {
+                throw new DuplicateInvoiceException(
+                        "Invoice already uploaded: " + file.getOriginalFilename());
+            }
 
             File directory =
                     new File(uploadDir);
@@ -50,7 +58,6 @@ public class InvoiceService
                     file.getInputStream(),
                     path
             );
-            String fileHash=hashUtil.generateSHA256(file);
             Invoice invoice =
                     Invoice.builder()
                             .fileName(file.getOriginalFilename())
@@ -69,6 +76,8 @@ public class InvoiceService
                     .status(saved.getStatus())
                     .build();
 
+        } catch(DuplicateInvoiceException e) {
+            throw e;
         } catch(Exception e) {
             throw new RuntimeException(e);
         }

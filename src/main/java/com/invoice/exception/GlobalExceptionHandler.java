@@ -18,4 +18,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(ex.getMessage());
     }
+
+    @ExceptionHandler(
+            InvoiceNotFoundException.class)
+    public ResponseEntity<String>
+    handleInvoiceNotFound(
+            InvoiceNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
 }

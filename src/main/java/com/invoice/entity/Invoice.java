@@ -31,6 +31,9 @@ public class Invoice {
 
     @Column (unique=true)
     private String fileHash;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String ocrText;
 
     private LocalDateTime createdAt;
 }

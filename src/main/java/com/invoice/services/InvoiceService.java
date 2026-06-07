@@ -22,6 +22,7 @@ import java.util.UUID;
 public class InvoiceService
          {
     private final InvoiceRepository repository;
+    private final InvoiceProducer invoiceProducer;
     private final HashUtil hashUtil;
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -71,6 +72,7 @@ public class InvoiceService
             Invoice saved =
                     repository.save(invoice);
 
+            invoiceProducer.publishInvoice(saved.getId());
             return InvoiceResponse.builder()
                     .id(saved.getId())
                     .status(saved.getStatus())

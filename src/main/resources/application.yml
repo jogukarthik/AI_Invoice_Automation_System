@@ -7,7 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 
     show-sql: true
 
@@ -23,3 +23,5 @@ spring:
 file:
   upload-dir: uploads
 
+ocr:
+  tessdata-path: ${TESSDATA_PATH:C:/Users/karthik.jogu/AppData/Local/Programs/Tesseract-OCR/tessdata}

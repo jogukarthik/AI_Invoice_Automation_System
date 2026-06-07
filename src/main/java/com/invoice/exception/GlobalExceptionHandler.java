@@ -29,4 +29,14 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(ex.getMessage());
     }
+    @ExceptionHandler(
+            OcrfailedException.class)
+    public ResponseEntity<String>
+    handleOcrException(
+            OcrfailedException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ex.getMessage());
+    }
 }

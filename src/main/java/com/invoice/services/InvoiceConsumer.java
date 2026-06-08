@@ -21,7 +21,7 @@ public class InvoiceConsumer {
     private final InvoiceRepository repository;
     private final OcrService ocrService;
     private final AIExtractionService aiExtractionService;
-    private  final ValidationService validationService;
+    private final ValidationService validationService;
 
     @RabbitListener(queues = RabbitMQConfig.INVOICE_PROCESS_QUEUE)
     public void processInvoice(InvoiceProcessMessage msg) {
@@ -39,8 +39,11 @@ public class InvoiceConsumer {
 
         invoice.setStatus(InvoiceStatus.PROCESSING);
         repository.save(invoice);
-        String text=null;
+
+        String text = null;
         try {
+            invoice.setStatus(InvoiceStatus.OCR_RUNNING);
+            repository.save(invoice);
             text = ocrService.extractText(invoice.getFilePath());
             invoice.setOcrText(text);
             invoice.setStatus(InvoiceStatus.OCR_COMPLETED);
@@ -50,43 +53,37 @@ public class InvoiceConsumer {
 
         repository.save(invoice);
 
-        if(text==null) {
+        if (text == null) {
             return;
         }
-        ExtractionAIResult result =
-                aiExtractionService
-                        .extractInvoiceData(
-                                invoice.getOcrText());
-        invoice.setInvoiceNumber(
-                result.getInvoiceNumber());
 
-        invoice.setVendorName(
-                result.getVendorName());
+        try {
+            invoice.setStatus(InvoiceStatus.EXTRACTION_RUNNING);
+            repository.save(invoice);
 
-        invoice.setSubtotal(
-                result.getSubtotal());
+            ExtractionAIResult result = aiExtractionService.extractInvoiceData(invoice.getOcrText());
 
-        invoice.setTax(
-                result.getTax());
+            invoice.setInvoiceNumber(result.getInvoiceNumber());
+            invoice.setVendorName(result.getVendorName());
+            invoice.setSubtotal(result.getSubtotal());
+            invoice.setTax(result.getTax());
+            invoice.setTotal(result.getTotal());
+            invoice.setConfidence(result.getConfidence());
+            invoice.setStatus(InvoiceStatus.EXTRACTION_COMPLETED);
+            repository.save(invoice);
 
-        invoice.setTotal(
-                result.getTotal());
+            ValidationResult validation = validationService.validate(result);
+            if (validation.isAutoApproved()) {
+                invoice.setStatus(InvoiceStatus.AUTO_APPROVED);
+            } else {
+                invoice.setStatus(InvoiceStatus.NEEDS_REVIEW);
+            }
+            repository.save(invoice);
 
-        invoice.setConfidence(
-                result.getConfidence());
-
-        invoice.setStatus(InvoiceStatus.EXTRACTION_COMPLETED);
-        repository.save(invoice);
-
-        ValidationResult validation =
-                validationService
-                        .validate(result);
-        if(validation.isAutoApproved()){
-            invoice.setStatus(InvoiceStatus.AUTO_APPROVED);
+        } catch (Exception ex) {
+            invoice.setStatus(InvoiceStatus.EXTRACTION_FAILED);
+            repository.save(invoice);
+            throw new AmqpRejectAndDontRequeueException(ex);
         }
-        else {
-            invoice.setStatus(InvoiceStatus.NEEDS_REVIEW);
-        }
-        repository.save(invoice);
     }
 }

@@ -20,5 +20,9 @@ public enum InvoiceStatus {
 
     AUTO_APPROVED,
 
-    NEEDS_REVIEW
+    NEEDS_REVIEW,
+
+    MANUALLY_APPROVED,
+
+    REJECTED
 }

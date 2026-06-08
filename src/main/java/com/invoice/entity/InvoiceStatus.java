@@ -24,5 +24,11 @@ public enum InvoiceStatus {
 
     MANUALLY_APPROVED,
 
-    REJECTED
+    REJECTED,
+
+    ERP_PROCESSING,
+
+    ERP_COMPLETED,
+
+    ERP_FAILED
 }

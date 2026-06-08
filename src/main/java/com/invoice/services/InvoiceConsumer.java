@@ -22,6 +22,7 @@ public class InvoiceConsumer {
     private final OcrService ocrService;
     private final AIExtractionService aiExtractionService;
     private final ValidationService validationService;
+    private final ErpProducer erpProducer;
 
     @RabbitListener(queues = RabbitMQConfig.INVOICE_PROCESS_QUEUE)
     public void processInvoice(InvoiceProcessMessage msg) {
@@ -75,6 +76,7 @@ public class InvoiceConsumer {
             ValidationResult validation = validationService.validate(result);
             if (validation.isAutoApproved()) {
                 invoice.setStatus(InvoiceStatus.AUTO_APPROVED);
+                erpProducer.publish(invoice.getId());
             } else {
                 invoice.setStatus(InvoiceStatus.NEEDS_REVIEW);
             }

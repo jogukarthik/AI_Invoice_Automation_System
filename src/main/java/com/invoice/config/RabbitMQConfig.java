@@ -17,8 +17,14 @@ public class RabbitMQConfig {
     public static final String INVOICE_PROCESS_DLQ   = "invoice.process.dlq";
     public static final String INVOICE_PROCESS_DLX   = "invoice.process.dlx";
 
+    public static final String ERP_QUEUE = "invoice.erp";
+    public static final String ERP_DLQ   = "invoice.erp.dlq";
+    public static final String ERP_DLX   = "invoice.erp.dlx";
+
+    // --- Invoice Process queue ---
+
     @Bean
-    public DirectExchange deadLetterExchange() {
+    public DirectExchange invoiceDeadLetterExchange() {
         return new DirectExchange(INVOICE_PROCESS_DLX);
     }
 
@@ -36,12 +42,42 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding dlqBinding() {
+    public Binding invoiceDlqBinding() {
         return BindingBuilder
                 .bind(invoiceProcessDlq())
-                .to(deadLetterExchange())
+                .to(invoiceDeadLetterExchange())
                 .with(INVOICE_PROCESS_DLQ);
     }
+
+    // --- ERP queue ---
+
+    @Bean
+    public DirectExchange erpDeadLetterExchange() {
+        return new DirectExchange(ERP_DLX);
+    }
+
+    @Bean
+    public Queue erpQueue() {
+        return QueueBuilder.durable(ERP_QUEUE)
+                .withArgument("x-dead-letter-exchange", ERP_DLX)
+                .withArgument("x-dead-letter-routing-key", ERP_DLQ)
+                .build();
+    }
+
+    @Bean
+    public Queue erpDlq() {
+        return QueueBuilder.durable(ERP_DLQ).build();
+    }
+
+    @Bean
+    public Binding erpDlqBinding() {
+        return BindingBuilder
+                .bind(erpDlq())
+                .to(erpDeadLetterExchange())
+                .with(ERP_DLQ);
+    }
+
+    // --- Shared ---
 
     @Bean
     public MessageConverter jsonMessageConverter() {

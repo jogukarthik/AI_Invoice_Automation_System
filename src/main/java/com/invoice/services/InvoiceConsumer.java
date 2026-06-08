@@ -1,6 +1,7 @@
 package com.invoice.services;
 
 import com.invoice.config.RabbitMQConfig;
+import com.invoice.dto.ExtractionAIResult;
 import com.invoice.dto.InvoiceProcessMessage;
 import com.invoice.entity.Invoice;
 import com.invoice.exception.InvoiceNotFoundException;
@@ -17,6 +18,7 @@ public class InvoiceConsumer {
 
     private final InvoiceRepository repository;
     private final OcrService ocrService;
+    private final AIExtractionService aiExtractionService;
 
     @RabbitListener(queues = RabbitMQConfig.INVOICE_PROCESS_QUEUE)
     public void processInvoice(InvoiceProcessMessage msg) {
@@ -43,6 +45,32 @@ public class InvoiceConsumer {
             invoice.setStatus("OCR_FAILED");
         }
 
+        repository.save(invoice);
+
+        ExtractionAIResult result =
+                aiExtractionService
+                        .extractInvoiceData(
+                                invoice.getOcrText());
+        invoice.setInvoiceNumber(
+                result.getInvoiceNumber());
+
+        invoice.setVendorName(
+                result.getVendorName());
+
+        invoice.setSubtotal(
+                result.getSubtotal());
+
+        invoice.setTax(
+                result.getTax());
+
+        invoice.setTotal(
+                result.getTotal());
+
+        invoice.setConfidence(
+                result.getConfidence());
+
+        invoice.setStatus(
+                "EXTRACTION_COMPLETED");
         repository.save(invoice);
     }
 }

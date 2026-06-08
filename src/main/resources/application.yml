@@ -25,3 +25,8 @@ file:
 
 ocr:
   tessdata-path: ${TESSDATA_PATH:C:/Users/karthik.jogu/AppData/Local/Programs/Tesseract-OCR/tessdata}
+
+anthropic:
+  api-key: YOUR_API_KEY
+  model: claude-sonnet-4
+  base-url: https://api.anthropic.com

@@ -48,4 +48,8 @@ public class Invoice {
     private BigDecimal total;
 
     private Double confidence;
+
+    private String reviewedBy;
+
+    private LocalDateTime reviewedAt;
 }

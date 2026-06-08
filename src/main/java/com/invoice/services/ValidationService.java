@@ -14,6 +14,13 @@ public class  ValidationService {
     public ValidationResult validate(
             ExtractionAIResult result) {
 
+        if (result.getSubtotal() == null
+                || result.getTax() == null
+                || result.getTotal() == null
+                || result.getConfidence() == null) {
+            return new ValidationResult(false, false, false);
+        }
+
         boolean arithmeticValid =
                 result.getSubtotal()
                         .add(result.getTax())

@@ -16,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewService {
     private final InvoiceRepository repository;
+    private final ErpProducer erpProducer;
     public void approve(
             Long invoiceId,
             ApprovalRequest request) {
@@ -50,6 +51,7 @@ public class ReviewService {
         );
         invoice.setReviewedBy(request.getActor());
         invoice.setReviewedAt(LocalDateTime.now());
+        erpProducer.publish(invoiceId);
         repository.save(invoice);
     }
 

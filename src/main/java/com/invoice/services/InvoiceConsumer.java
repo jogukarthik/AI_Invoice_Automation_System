@@ -36,9 +36,9 @@ public class InvoiceConsumer {
 
         invoice.setStatus("PROCESSING");
         repository.save(invoice);
-
+        String text=null;
         try {
-            String text = ocrService.extractText(invoice.getFilePath());
+            text = ocrService.extractText(invoice.getFilePath());
             invoice.setOcrText(text);
             invoice.setStatus("OCR_COMPLETED");
         } catch (OcrfailedException ex) {
@@ -47,6 +47,9 @@ public class InvoiceConsumer {
 
         repository.save(invoice);
 
+        if(text==null) {
+            return;
+        }
         ExtractionAIResult result =
                 aiExtractionService
                         .extractInvoiceData(

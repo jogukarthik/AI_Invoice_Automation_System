@@ -28,5 +28,5 @@ ocr:
 
 anthropic:
   api-key: YOUR_API_KEY
-  model: claude-sonnet-4
+  model: claude-sonnet-4-6
   base-url: https://api.anthropic.com

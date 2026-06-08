@@ -1,5 +1,6 @@
 package com.invoice.dto;
 
+import com.invoice.entity.InvoiceStatus;
 import lombok.*;
 
 @Getter
@@ -9,5 +10,5 @@ import lombok.*;
 @Builder
 public class InvoiceResponse {
     private Long id;
-    private String status;
+    private InvoiceStatus status;
 }

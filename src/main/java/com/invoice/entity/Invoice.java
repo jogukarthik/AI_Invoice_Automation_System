@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -28,7 +27,8 @@ public class Invoice {
 
     private String filePath;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private InvoiceStatus status;
 
     @Column (unique=true)
     private String fileHash;

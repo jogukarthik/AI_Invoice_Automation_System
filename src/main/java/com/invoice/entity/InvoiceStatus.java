@@ -1,0 +1,24 @@
+package com.invoice.entity;
+
+public enum InvoiceStatus {
+
+    RECEIVED,
+
+    PROCESSING,
+
+    OCR_RUNNING,
+
+    OCR_COMPLETED,
+
+    OCR_FAILED,
+
+    EXTRACTION_RUNNING,
+
+    EXTRACTION_COMPLETED,
+
+    EXTRACTION_FAILED,
+
+    AUTO_APPROVED,
+
+    NEEDS_REVIEW
+}

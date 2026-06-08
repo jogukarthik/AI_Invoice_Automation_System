@@ -3,7 +3,9 @@ package com.invoice.services;
 import com.invoice.config.RabbitMQConfig;
 import com.invoice.dto.ExtractionAIResult;
 import com.invoice.dto.InvoiceProcessMessage;
+import com.invoice.dto.ValidationResult;
 import com.invoice.entity.Invoice;
+import com.invoice.entity.InvoiceStatus;
 import com.invoice.exception.InvoiceNotFoundException;
 import com.invoice.exception.OcrfailedException;
 import com.invoice.repositories.InvoiceRepository;
@@ -19,6 +21,7 @@ public class InvoiceConsumer {
     private final InvoiceRepository repository;
     private final OcrService ocrService;
     private final AIExtractionService aiExtractionService;
+    private  final ValidationService validationService;
 
     @RabbitListener(queues = RabbitMQConfig.INVOICE_PROCESS_QUEUE)
     public void processInvoice(InvoiceProcessMessage msg) {
@@ -34,15 +37,15 @@ public class InvoiceConsumer {
             throw new AmqpRejectAndDontRequeueException(e);
         }
 
-        invoice.setStatus("PROCESSING");
+        invoice.setStatus(InvoiceStatus.PROCESSING);
         repository.save(invoice);
         String text=null;
         try {
             text = ocrService.extractText(invoice.getFilePath());
             invoice.setOcrText(text);
-            invoice.setStatus("OCR_COMPLETED");
+            invoice.setStatus(InvoiceStatus.OCR_COMPLETED);
         } catch (OcrfailedException ex) {
-            invoice.setStatus("OCR_FAILED");
+            invoice.setStatus(InvoiceStatus.OCR_FAILED);
         }
 
         repository.save(invoice);
@@ -72,8 +75,18 @@ public class InvoiceConsumer {
         invoice.setConfidence(
                 result.getConfidence());
 
-        invoice.setStatus(
-                "EXTRACTION_COMPLETED");
+        invoice.setStatus(InvoiceStatus.EXTRACTION_COMPLETED);
+        repository.save(invoice);
+
+        ValidationResult validation =
+                validationService
+                        .validate(result);
+        if(validation.isAutoApproved()){
+            invoice.setStatus(InvoiceStatus.AUTO_APPROVED);
+        }
+        else {
+            invoice.setStatus(InvoiceStatus.NEEDS_REVIEW);
+        }
         repository.save(invoice);
     }
 }

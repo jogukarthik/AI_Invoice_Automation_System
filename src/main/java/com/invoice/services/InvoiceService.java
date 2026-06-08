@@ -1,6 +1,7 @@
 package com.invoice.services;
 
 import com.invoice.dto.InvoiceResponse;
+import com.invoice.entity.InvoiceStatus;
 import com.invoice.entity.Invoice;
 import com.invoice.exception.DuplicateInvoiceException;
 import com.invoice.repositories.InvoiceRepository;
@@ -65,7 +66,7 @@ public class InvoiceService
                             .filePath(path.toString())
                             .fileHash(fileHash)
                             .sourceEmail(sourceEmail)
-                            .status("RECEIVED")
+                            .status(InvoiceStatus.RECEIVED)
                             .createdAt(LocalDateTime.now())
                             .build();
 

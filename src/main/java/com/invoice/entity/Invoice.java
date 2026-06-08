@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,4 +37,15 @@ public class Invoice {
     private String ocrText;
 
     private LocalDateTime createdAt;
+    private String invoiceNumber;
+
+    private String vendorName;
+
+    private BigDecimal subtotal;
+
+    private BigDecimal tax;
+
+    private BigDecimal total;
+
+    private Double confidence;
 }
